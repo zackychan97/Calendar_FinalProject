@@ -60,6 +60,29 @@
 		}
 
 		/// <summary>
+		/// Gets events within a date range
+		/// </summary>
+		/// <param name="start">Start date</param>
+		/// <param name="end">End date</param>
+		/// <returns>List of calendar events</returns>
+		public List<CalendarEvent> GetEventsInDateRange(DateTime start, DateTime end)
+		{
+			// this query will probably need to be fixed, it's a start
+			return _events.Where(q => q.EventStart.Date >= start && q.EventEnd.Date <= end).ToList();
+		}
+
+		/// <summary>
+		/// Gets events for a given day
+		/// </summary>
+		/// <param name="day"></param>
+		/// <returns>List of calendar events</returns>
+		public List<CalendarEvent> GetEventsByDay(DateTime day)
+		{
+			// this query will probably need to be fixed, it's a start
+			return _events.Where(q => q.EventStart.Day >= day.Day && q.EventEnd.Day <= day.Day).ToList();
+		}
+
+		/// <summary>
 		/// Gets the calendar description.
 		/// </summary>
 		/// <returns>The string of the calendar description</returns>
