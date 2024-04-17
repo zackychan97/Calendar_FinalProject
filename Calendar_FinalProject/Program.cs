@@ -89,7 +89,7 @@ void DisplayEvents(List<CalendarEvent> events)
 void DisplayMonth()
 {
     Console.WriteLine();
-    Console.WriteLine("Enter the year of the Calendar: ");
+    //Console.WriteLine("Enter the year of the Calendar: ");
 	calendar.DisplayMonthlyView(2024, 4);
 }
 
