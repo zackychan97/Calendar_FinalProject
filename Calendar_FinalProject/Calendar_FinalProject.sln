@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar_FinalProject", "Calendar_FinalProject.csproj", "{964C0CE5-6CF9-40B5-9B1A-46FEFEE3E1CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calendar_FinalProject", "Calendar_FinalProject.csproj", "{964C0CE5-6CF9-40B5-9B1A-46FEFEE3E1CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar_FinalProjectTest", "..\Calendar_FinalProjectTest\Calendar_FinalProjectTest.csproj", "{EF2FC1D6-6186-455F-BDCF-FEB4628FC250}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{964C0CE5-6CF9-40B5-9B1A-46FEFEE3E1CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{964C0CE5-6CF9-40B5-9B1A-46FEFEE3E1CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{964C0CE5-6CF9-40B5-9B1A-46FEFEE3E1CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF2FC1D6-6186-455F-BDCF-FEB4628FC250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF2FC1D6-6186-455F-BDCF-FEB4628FC250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF2FC1D6-6186-455F-BDCF-FEB4628FC250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF2FC1D6-6186-455F-BDCF-FEB4628FC250}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

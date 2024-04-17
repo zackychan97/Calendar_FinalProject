@@ -1,6 +1,6 @@
 ﻿namespace Calendar_FinalProject
 {
-	internal class Calendar
+	public class Calendar
 	{
 		/// <summary>
 		/// Description of the calendar.
