@@ -99,5 +99,51 @@
 		{
 			_description = description ?? "CALENDAR"; // if description null, assign generic name
 		}
-	}
+
+        public void DisplayMonthlyView(int year, int month)
+        {
+            // Get the first day of the month
+            DateTime firstDayOfMonth = new DateTime(year, month, 1);
+            // Get the last day of the month
+            DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+            // Get the events for the month
+            List<CalendarEvent> events = GetEventsInDateRange(firstDayOfMonth, lastDayOfMonth);
+
+            // Print the month and year
+            Console.WriteLine($"{firstDayOfMonth.ToString("MMMM yyyy")}\n");
+
+            // Print the days of the week
+            Console.WriteLine("Sun Mon Tue Wed Thu Fri Sat");
+
+            // Print the days of the month
+            for (int i = 0; i < (int)firstDayOfMonth.DayOfWeek; i++)
+            {
+                Console.Write("    ");
+            }
+
+            for (int day = 1; day <= lastDayOfMonth.Day; day++)
+            {
+                // Print the day
+                Console.Write($"{day,3} ");
+
+                // Check if there are any events for this day
+                List<CalendarEvent> dayEvents = events.Where(e => e.EventStart.Day == day).ToList();
+                if (dayEvents.Count > 0)
+                {
+                    // Print the events
+                    foreach (CalendarEvent ev in dayEvents)
+                    {
+                        Console.WriteLine($"  {ev.Description}");
+                    }
+                }
+
+                // Start a new line for each Sunday
+                if ((day + (int)firstDayOfMonth.DayOfWeek) % 7 == 0)
+                {
+                    Console.WriteLine();
+                }
+            }
+        }
+    }
 }

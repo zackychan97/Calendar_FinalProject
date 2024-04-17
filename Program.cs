@@ -16,9 +16,10 @@ while (!exit)
 	Console.WriteLine($"1) Add an event");
 	Console.WriteLine($"2) Display all events");
 	Console.WriteLine($"3) Display events within a range");
+    Console.WriteLine($"4) Display calendar with a year and month (numeric)");
 
 
-	var entry = Console.ReadLine();
+    var entry = Console.ReadLine();
 
 	switch (entry)
 	{
@@ -30,6 +31,9 @@ while (!exit)
 			break;
 		case "3":
 			DisplayEventsInRange();
+			break;
+		case "4":
+			DisplayMonth();
 			break;
 		case "x":
 		case "X":
@@ -80,5 +84,12 @@ void DisplayEvents(List<CalendarEvent> events)
         // this needs better formatting, just a sample to get started
 		Console.WriteLine($"Description: {ev.Description} Start: {ev.EventStart} End: {ev.EventEnd}");
     }
+}
+
+void DisplayMonth()
+{
+    Console.WriteLine();
+    Console.WriteLine("Enter the year of the Calendar: ");
+	calendar.DisplayMonthlyView(2024, 4);
 }
 
