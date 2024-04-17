@@ -1,6 +1,6 @@
 ﻿namespace Calendar_FinalProject
 {
-	internal class CalendarEvent
+	public class CalendarEvent
 	{
 		public string Description { get; set; } = string.Empty;
 		public DateTime EventStart { get; set; }
