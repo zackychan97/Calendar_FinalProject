@@ -1,6 +1,6 @@
 ﻿namespace Calendar_FinalProject
 {
-	public class Calendar
+	public class UserCalendar
 	{
 		/// <summary>
 		/// Description of the calendar.
@@ -16,7 +16,7 @@
 		/// Creates a new instance of a calendar.
 		/// </summary>
 		/// <param name="description">Description of the calendar</param>
-		public Calendar(string description) 
+		public UserCalendar(string description) 
 		{ 
 			_description = description ?? "CALENDAR"; // if description null, assign generic name
 			_events = new List<CalendarEvent>();
