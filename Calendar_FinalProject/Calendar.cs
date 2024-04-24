@@ -79,7 +79,7 @@
 		public List<CalendarEvent> GetEventsByDay(DateTime day)
 		{
 			// this query will probably need to be fixed, it's a start
-			return _events.Where(q => q.EventStart.Day >= day.Day && q.EventEnd.Day <= day.Day).ToList();
+			return _events.Where(q => q.EventStart.Day == day.Day || q.EventEnd.Day == day.Day).ToList();
 		}
 
 		/// <summary>
