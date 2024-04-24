@@ -1,7 +1,10 @@
 ﻿using Calendar_FinalProject;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
+
+Console.ForegroundColor = ConsoleColor.White;
 Console.WriteLine($"Welcome to the Calendar App!!");
 Console.Write($"Please enter a description for your calendar: ");
 
@@ -77,14 +80,29 @@ void AddEvent()
     Console.WriteLine();
     Console.WriteLine("Enter the event description: ");
     var desc = Console.ReadLine();
-    Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
-    var start = Console.ReadLine();
-    // I need to add a function to ensure the user start time has the correct format - H
+
+	bool valid = false;
+	var start = "";
+	var end = "";
+
+	do
+	{
+        Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
+        start = Console.ReadLine();
+		valid = userInputValid(start);
+    } while (!valid);
+
     DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
-    Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
-    var end = Console.ReadLine();
-    // I need to add a function to ensure the user start time has the correct format - H
+
+	do
+	{
+        Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
+        end = Console.ReadLine();
+		valid = userInputValid(end);
+    } while (!valid);
+
     DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
     var ev = calendar.AddEvent(desc, startTime, endTime);
     Console.WriteLine($"Your event {ev.Description} has been added!");
 }
@@ -94,11 +112,13 @@ void DisplayEvents(List<CalendarEvent> events)
     Console.WriteLine();
     Console.WriteLine($"All events for the current calendar [{calendar.GetDescription()}]:");
     
+	Console.ForegroundColor = ConsoleColor.DarkCyan;
 	foreach (var ev in events)
 	{
         // this needs better formatting, just a sample to get started
-		Console.WriteLine($"Description: {ev.Description} Start: {ev.EventStart} End: {ev.EventEnd}");
+		Console.WriteLine($"Description: {ev.Description}\nStart: {ev.EventStart}\nEnd: {ev.EventEnd}\n");
     }
+	Console.ForegroundColor = ConsoleColor.White;
 }
 
 void DisplayMonth()
@@ -110,22 +130,23 @@ void DisplayMonth()
 
 void DisplayWeeklyView(DateTime start, DateTime end, List<CalendarEvent> events)
 {
+	Console.ForegroundColor = ConsoleColor.Magenta;
 	Console.WriteLine();
 	Console.WriteLine($"-----------------------------------------------Weekly View----------------------------------------------");
 	Console.WriteLine($"----------------------------------------{start.ToString("MM/dd/yyyy")} - {end.ToString("MM/dd/yyyy")}-----------------------------------------");
 
 	string[] dayHeaders = { "Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat." };
-	int startDayIndex = ((int)start.DayOfWeek) % 7; // Adjust to start from Sunday
+	// Adjusts depending on the start date the user asked for
+	int startDayIndex = ((int)start.DayOfWeek) % 7;
+	// Creates the string of headers
 	string dayHeaderLine = string.Join("     |     ", dayHeaders.Skip(startDayIndex).Concat(dayHeaders.Take(startDayIndex)));
 	Console.WriteLine("     " + dayHeaderLine);
 	Console.WriteLine("________________________________________________________________________________________________________");
-    // Trying to display to where it's Sun. | Mon.   | Tues. | .....
-    //								 Event1 | Event1 |
-    //										| Event2
+	Console.ForegroundColor = ConsoleColor.White;
 
     List<CalendarEvent> sortedByStartTime = events.OrderBy(e => e.EventStart).ToList();
 
-	// Loops through the events to display in weekly format
+	// Loops through the events to display in a horizontal weekly format
 	foreach (var ev in sortedByStartTime)
 	{
 		for (int j = 0; j < 7; j++)
@@ -144,5 +165,24 @@ void DisplayWeeklyView(DateTime start, DateTime end, List<CalendarEvent> events)
 			}
 		}
 	}
+}
+
+// Validates user input
+bool userInputValid(string start)
+{
+    // Regular expression pattern for MM/DD/YYYY 00:00 format
+    string pattern = @"^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$";
+
+    if (Regex.IsMatch(start, pattern))
+    {
+        return true;
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Invalid input format. Please enter the correct format.");
+        Console.ForegroundColor = ConsoleColor.White;
+        return false;
+    }
 }
 
