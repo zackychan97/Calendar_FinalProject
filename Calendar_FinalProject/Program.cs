@@ -43,8 +43,10 @@ while (!exit)
 		case "5":
 			Console.WriteLine($"Enter the week you would like to view in the XX/XX/XXXX format.");
             var start = Console.ReadLine();
-            // I need to add a function to ensure the user start time has the correct format - H
+
+            // Need to add a function to validate - H
             DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy", CultureInfo.InvariantCulture);
+
 
             // Creating an end time to display in the weekly view header
             DateTime endTime = startTime.AddHours(144.99);
@@ -80,7 +82,7 @@ void AddEvent()
     Console.WriteLine("Enter the event description: ");
     var desc = Console.ReadLine();
 
-    bool valid = false;
+    var valid = false;
     var start = "";
     var end = "";
 
@@ -88,7 +90,7 @@ void AddEvent()
     {
         Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
         start = Console.ReadLine();
-        valid = userInputValid(start);
+        valid = userDateValid(start);
     } while (!valid);
 
     DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
@@ -97,7 +99,7 @@ void AddEvent()
     {
         Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
         end = Console.ReadLine();
-        valid = userInputValid(end);
+        valid = userEndDateValid(start, end);
     } while (!valid);
 
     DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
@@ -148,31 +150,58 @@ void DisplayWeeklyView(DateTime start, DateTime end, List<CalendarEvent> events)
     // Loops through the events to display in a horizontal weekly format
     foreach (var ev in sortedByStartTime)
     {
+        // Loops through every day
         for (int j = 0; j < 7; j++)
         {
+
             if ((int)ev.EventStart.DayOfWeek == ((int)start.DayOfWeek + j) % 7)
             {
-                Console.Write($"{ev.Description,14}|");
+                // Keeps it in a neat format where its only 14 characters long in each box
+                if (ev.Description.Length >= 14)
+                {
+                    if (j < 6)
+                    {
+                        Console.Write($"{ev.Description.Substring(0, 14)}|");
+                    }
+                    else
+                    {
+                        Console.Write($"{ev.Description.Substring(0, 14)}\n");
+                    }
+                }
+                else if(ev.Description.Length < 14)
+                {
+                    int spaces = 13 - ev.Description.Length;
+                    if (j < 6)
+                    {
+                        Console.Write($"{ev.Description} {new string(' ', spaces)}|");
+                    }
+                    else
+                    {
+                        Console.Write($"{ev.Description} {new string(' ', spaces)}\n");
+                    }
+                }
             }
             else if (j < 6)
             {
                 Console.Write($"{string.Empty,14}|");
             }
-            else
+            else 
             {
-                Console.Write($"{string.Empty,14}|\n");
+                // Last element so output spaces and add newline
+                // I could make this a little more compact - H
+                Console.Write($"{string.Empty,14}\n");
             }
         }
     }
 }
 
 // Validates user input and returns bool
-bool userInputValid(string start)
+bool userDateValid(string date)
 {
     // Regular expression pattern for MM/DD/YYYY 00:00 format
     string pattern = @"^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$";
 
-    if (Regex.IsMatch(start, pattern))
+    if (Regex.IsMatch(date, pattern))
     {
         return true;
     }
@@ -182,6 +211,30 @@ bool userInputValid(string start)
         Console.WriteLine("Invalid input format. Please enter the correct format.");
         Console.ForegroundColor = ConsoleColor.White;
         return false;
+    }
+}
+
+// Validates user end time input
+bool userEndDateValid(string start, string end)
+{
+    if (!userDateValid(end))
+    {
+        return false;
+    }
+
+    // Ensures the end date isn't before the start time
+    DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+    DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+    if (startTime > endTime)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Invalid end time. Please enter an end time on or after the start time.");
+        Console.ForegroundColor = ConsoleColor.White;
+        return false;
+    }
+    else
+    {
+        return true;
     }
 }
 
