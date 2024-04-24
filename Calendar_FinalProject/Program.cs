@@ -166,7 +166,7 @@ void DisplayWeeklyView(DateTime start, DateTime end, List<CalendarEvent> events)
     }
 }
 
-// Validates user input
+// Validates user input and returns bool
 bool userInputValid(string start)
 {
     // Regular expression pattern for MM/DD/YYYY 00:00 format
