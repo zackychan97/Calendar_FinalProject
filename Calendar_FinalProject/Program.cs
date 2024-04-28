@@ -1,11 +1,15 @@
 ﻿using Calendar_FinalProject;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
+Console.ForegroundColor = ConsoleColor.White;
 Console.WriteLine($"Welcome to the Calendar App!!");
 Console.Write($"Please enter a description for your calendar: ");
 
 var desc = Console.ReadLine();
 
-var calendar = new Calendar(desc);
+var calendar = new UserCalendar(desc);
 
 var exit  = false;
 
@@ -17,6 +21,7 @@ while (!exit)
 	Console.WriteLine($"2) Display all events");
 	Console.WriteLine($"3) Display events within a range");
     Console.WriteLine($"4) Display calendar with a year and month (numeric)");
+	Console.WriteLine($"5) Display in a weekly view");
 
 
     var entry = Console.ReadLine();
@@ -35,6 +40,18 @@ while (!exit)
 		case "4":
 			DisplayMonth();
 			break;
+		case "5":
+			Console.WriteLine($"Enter the week you would like to view in the XX/XX/XXXX format.");
+            var start = Console.ReadLine();
+
+            // Need to add a function to validate - H
+            DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy", CultureInfo.InvariantCulture);
+
+
+            // Creating an end time to display in the weekly view header
+            DateTime endTime = startTime.AddHours(144.99);
+            DisplayWeeklyView(startTime, endTime, calendar.GetEventsInDateRange(startTime, endTime));
+            break;
 		case "x":
 		case "X":
 			exit = true; 
@@ -63,33 +80,161 @@ void AddEvent()
 {
     Console.WriteLine();
     Console.WriteLine("Enter the event description: ");
-	var desc = Console.ReadLine();
-	Console.WriteLine($"Enter the start date/time in xxxxx format"); //fix me, needs proper date time formatting 
-	
-	var start = DateTime.Now.AddDays(-2); // fix me, test value, need user input
-	var end = DateTime.Now.AddDays(-1); // fix me, test value, need user input
+    var desc = Console.ReadLine();
 
-	var ev = calendar.AddEvent(desc, start, end);
+    var valid = false;
+    var start = "";
+    var end = "";
 
-	Console.WriteLine($"Your event {ev.Description} has been added!");
+    do
+    {
+        Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
+        start = Console.ReadLine();
+        valid = userDateValid(start);
+    } while (!valid);
+
+    DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+    do
+    {
+        Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
+        end = Console.ReadLine();
+        valid = userEndDateValid(start, end);
+    } while (!valid);
+
+    DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+    var ev = calendar.AddEvent(desc, startTime, endTime);
+    Console.WriteLine($"Your event {ev.Description} has been added!");
 }
 
 void DisplayEvents(List<CalendarEvent> events)
 {
     Console.WriteLine();
     Console.WriteLine($"All events for the current calendar [{calendar.GetDescription()}]:");
-    
-	foreach (var ev in events)
-	{
+
+    Console.ForegroundColor = ConsoleColor.DarkCyan;
+    foreach (var ev in events)
+    {
         // this needs better formatting, just a sample to get started
-		Console.WriteLine($"Description: {ev.Description} Start: {ev.EventStart} End: {ev.EventEnd}");
+        Console.WriteLine($"Description: {ev.Description}\nStart: {ev.EventStart}\nEnd: {ev.EventEnd}\n");
     }
+    Console.ForegroundColor = ConsoleColor.White;
 }
 
 void DisplayMonth()
 {
     Console.WriteLine();
     //Console.WriteLine("Enter the year of the Calendar: ");
-	calendar.DisplayMonthlyView(2024, 4);
+    calendar.DisplayMonthlyView(2024, 4);
+}
+
+void DisplayWeeklyView(DateTime start, DateTime end, List<CalendarEvent> events)
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine();
+    Console.WriteLine($"-----------------------------------------------Weekly View----------------------------------------------");
+    Console.WriteLine($"----------------------------------------{start.ToString("MM/dd/yyyy")} - {end.ToString("MM/dd/yyyy")}-----------------------------------------");
+
+    string[] dayHeaders = { "Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat." };
+    // Adjusts depending on the start date the user asked for
+    int startDayIndex = ((int)start.DayOfWeek) % 7;
+    // Creates the string of headers
+    string dayHeaderLine = string.Join("     |     ", dayHeaders.Skip(startDayIndex).Concat(dayHeaders.Take(startDayIndex)));
+    Console.WriteLine("     " + dayHeaderLine);
+    Console.WriteLine("________________________________________________________________________________________________________");
+    Console.ForegroundColor = ConsoleColor.White;
+
+    List<CalendarEvent> sortedByStartTime = events.OrderBy(e => e.EventStart).ToList();
+
+    // Loops through the events to display in a horizontal weekly format
+    foreach (var ev in sortedByStartTime)
+    {
+        // Loops through every day
+        for (int j = 0; j < 7; j++)
+        {
+
+            if ((int)ev.EventStart.DayOfWeek == ((int)start.DayOfWeek + j) % 7)
+            {
+                // Keeps it in a neat format where its only 14 characters long in each box
+                if (ev.Description.Length >= 14)
+                {
+                    if (j < 6)
+                    {
+                        Console.Write($"{ev.Description.Substring(0, 14)}|");
+                    }
+                    else
+                    {
+                        Console.Write($"{ev.Description.Substring(0, 14)}\n");
+                    }
+                }
+                else if(ev.Description.Length < 14)
+                {
+                    int spaces = 13 - ev.Description.Length;
+                    if (j < 6)
+                    {
+                        Console.Write($"{ev.Description} {new string(' ', spaces)}|");
+                    }
+                    else
+                    {
+                        Console.Write($"{ev.Description} {new string(' ', spaces)}\n");
+                    }
+                }
+            }
+            else if (j < 6)
+            {
+                Console.Write($"{string.Empty,14}|");
+            }
+            else 
+            {
+                // Last element so output spaces and add newline
+                // I could make this a little more compact - H
+                Console.Write($"{string.Empty,14}\n");
+            }
+        }
+    }
+}
+
+// Validates user input and returns bool
+bool userDateValid(string date)
+{
+    // Regular expression pattern for MM/DD/YYYY 00:00 format
+    string pattern = @"^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$";
+
+    if (Regex.IsMatch(date, pattern))
+    {
+        return true;
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Invalid input format. Please enter the correct format.");
+        Console.ForegroundColor = ConsoleColor.White;
+        return false;
+    }
+}
+
+// Validates user end time input
+bool userEndDateValid(string start, string end)
+{
+    if (!userDateValid(end))
+    {
+        return false;
+    }
+
+    // Ensures the end date isn't before the start time
+    DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+    DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+    if (startTime > endTime)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Invalid end time. Please enter an end time on or after the start time.");
+        Console.ForegroundColor = ConsoleColor.White;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
