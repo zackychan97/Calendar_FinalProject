@@ -50,11 +50,48 @@
             }
 		}
 
-		/// <summary>
-		/// Gets all events of the calendar.
-		/// </summary>
-		/// <returns>A list of CalendarEvents</returns>
-		public List<CalendarEvent> GetEvents()
+        /// <summary>
+        /// Deletes event from the calendar.
+        /// </summary>
+        /// <param name="desc">Description of event</param>
+        /// <param name="start">Date and start time of event</param>
+        /// <param name="end">Date and end time of event</param>
+        /// <returns>Returns t/f based on success</returns>
+        public bool DeleteEvent(string desc, DateTime start, DateTime end)
+        {
+            try
+            {
+                // Assuming _events is a collection (e.g., List<CalendarEvent>) where events are stored
+                var eventToDelete = _events.FirstOrDefault(ev =>
+                    ev.Description == desc &&
+                    ev.EventStart == start &&
+                    ev.EventEnd == end);
+
+                if (eventToDelete != null)
+                {
+                    _events.Remove(eventToDelete);
+                    Console.WriteLine("Event deleted successfully.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Event not found. Nothing to delete.");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"There was an error: {ex.Message}");
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets all events of the calendar.
+        /// </summary>
+        /// <returns>A list of CalendarEvents</returns>
+        public List<CalendarEvent> GetEvents()
 		{
 			return _events;
 		}
@@ -102,6 +139,9 @@
 
         public void DisplayMonthlyView(int year, int month)
         {
+            int eventCharLen = 0;
+            bool printDay = true;
+
             // Get the first day of the month
             DateTime firstDayOfMonth = new DateTime(year, month, 1);
             // Get the last day of the month
@@ -114,33 +154,53 @@
             Console.WriteLine($"{firstDayOfMonth.ToString("MMMM yyyy")}\n");
 
             // Print the days of the week
-            Console.WriteLine("Sun Mon Tue Wed Thu Fri Sat");
+            //Console.WriteLine("Sun Mon Tue Wed Thu Fri Sat");
+            Console.WriteLine("Sun     Mon     Tue     Wed     Thu     Fri     Sat");
 
             // Print the days of the month
             for (int i = 0; i < (int)firstDayOfMonth.DayOfWeek; i++)
             {
-                Console.Write("    ");
+                //Console.Write("    ");
+                Console.Write("        ");
             }
 
             for (int day = 1; day <= lastDayOfMonth.Day; day++)
             {
-                // Print the day
-                Console.Write($"{day,3} ");
+                // reset eventCharLen
+                eventCharLen = 0;
 
                 // Check if there are any events for this day
                 List<CalendarEvent> dayEvents = events.Where(e => e.EventStart.Day == day).ToList();
                 if (dayEvents.Count > 0)
                 {
+                    Console.SetCursorPosition(Console.CursorLeft - 3, Console.CursorTop);
+
                     // Print the events
                     foreach (CalendarEvent ev in dayEvents)
                     {
-                        Console.WriteLine($"  {ev.Description}");
+                        //Console.WriteLine($"  {ev.Description}");
+
+                        // Truncate the event description to the first 5 characters
+                        string truncatedDescription = ev.Description.Length > 5 ? ev.Description.Substring(0, 5) : ev.Description;
+                        Console.Write($"  {truncatedDescription,5}");
+                        int spacing = 8 - truncatedDescription.Length;
+                        for (int i = 0; (i < spacing); i++)
+                        {
+                            Console.Write(' ');
+                        }
                     }
                 }
+                else
+                {
+                    Console.Write($"{day,2} ");
+                    Console.Write("     ");
+                }
+
 
                 // Start a new line for each Sunday
                 if ((day + (int)firstDayOfMonth.DayOfWeek) % 7 == 0)
                 {
+                    Console.WriteLine();
                     Console.WriteLine();
                 }
             }
