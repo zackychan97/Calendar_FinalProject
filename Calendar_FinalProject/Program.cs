@@ -22,7 +22,8 @@ while (!exit)
 	Console.WriteLine($"3) Display events within a range");
     Console.WriteLine($"4) Display calendar with a year and month (numeric)");
 	Console.WriteLine($"5) Display in a weekly view");
-
+    Console.WriteLine($"6) Change the descirption of an event");
+    Console.WriteLine($"7) Change the date and time of an event");
 
     var entry = Console.ReadLine();
 
@@ -51,6 +52,18 @@ while (!exit)
             // Creating an end time to display in the weekly view header
             DateTime endTime = startTime.AddHours(144.99);
             DisplayWeeklyView(startTime, endTime, calendar.GetEventsInDateRange(startTime, endTime));
+            break;
+        case "6":
+            DisplayEvents(calendar.GetEvents());
+            Console.WriteLine($"Enter name of the event you would like to change:");
+            var name = Console.ReadLine();
+            changeEventName(name, calendar.GetEvents());
+            break;
+        case "7":
+            DisplayEvents(calendar.GetEvents());
+            Console.WriteLine($"Enter name of the event you would like to change the time and date for:");
+            name = Console.ReadLine();
+            changeEventTime(name, calendar.GetEvents());
             break;
 		case "x":
 		case "X":
@@ -95,6 +108,7 @@ void AddEvent()
 
     DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
 
+    valid = false; // Fixed a bug
     do
     {
         Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
@@ -235,6 +249,74 @@ bool userEndDateValid(string start, string end)
     else
     {
         return true;
+    }
+}
+
+void changeEventName(string name, List<CalendarEvent> events)
+{
+    var updated = false;
+    foreach (var ev in events)
+    {
+        if (ev.Description == name)
+        {
+            Console.WriteLine($"Event description found! Enter a new description for this event.");
+            var newname = Console.ReadLine();
+            ev.Description = newname;
+            Console.WriteLine($"Description updated successfully!");
+            break;
+        }
+    }
+    if (!updated)
+    {
+        Console.WriteLine($"User description not found!");
+
+    }
+}
+
+void changeEventTime(string name, List<CalendarEvent> events)
+{
+    var updated = false;
+    foreach (var ev in events)
+    {
+        if (ev.Description == name)
+        {
+            Console.WriteLine($"Event description found!");
+            var start = "";
+            var valid = false;
+            var end = "";
+
+            do
+            {
+                Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
+                start = Console.ReadLine();
+                valid = userDateValid(start);
+            } while (!valid);
+
+            DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+            valid = false;
+            do
+            {
+                Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
+                end = Console.ReadLine();
+                valid = userEndDateValid(start, end);
+            } while (!valid);
+
+            DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+
+
+            ev.EventStart = startTime;
+            ev.EventEnd = endTime;
+            Console.WriteLine($"Date and time updated successfully!");
+            break;
+        }
+    }
+
+    if (!updated)
+    {
+        Console.WriteLine($"User description not found!");
+
     }
 }
 
