@@ -20,6 +20,7 @@ namespace Calendar_FinalProject
             var exit = false;
 
             // Print menu:
+            // add comment
             while (!exit)
             {
                 Console.WriteLine();
