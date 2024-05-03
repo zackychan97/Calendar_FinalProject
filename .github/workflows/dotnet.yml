@@ -1,28 +1,43 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
+
 name: .NET
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - '*'  # Trigger on all branches
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - '*'  # Trigger on all branches
+  create:  # Trigger on branch creation
+    branches:
+      - '*'  # Trigger on all branches
 
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET
+    - name: Show branches before
+      run: git branch -a
+    - name: Create new branch
+      run: git checkout -b new-branch
+    - name: Show branches after
+      run: git branch -a
+    - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet build 
+    - name: Test with the dotnet CLI
+      run: dotnet test
