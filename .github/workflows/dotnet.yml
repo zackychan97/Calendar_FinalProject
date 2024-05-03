@@ -1,0 +1,28 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 5.x
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 5.x
+    - name: Restore dependencies
+      run: dotnet restore ./Calendar_FinalProject/Calendar_FinalProject.sln
+    - name: Build
+      run: dotnet build ./Calendar_FinalProject/Calendar_FinalProject.sln --no-restore
+    - name: Test
+      run: dotnet test ./Calendar_FinalProject/Calendar_FinalProject.sln --no-build --verbosity normal
