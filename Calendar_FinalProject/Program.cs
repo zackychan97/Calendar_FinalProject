@@ -33,6 +33,7 @@ namespace Calendar_FinalProject
                 Console.WriteLine($"8) Delete an event");
 
                 var entry = Console.ReadLine();
+                var name = "";
 
                 switch (entry)
                 {
@@ -42,9 +43,9 @@ namespace Calendar_FinalProject
                     case "2":
                         DisplayEvents(calendar.GetEvents());
                         break;
-                    /*		case "3":
-                                DisplayEventsInRange();
-                                break;*/
+                    case "3":
+                        DisplayEventsInRange();
+                        break;
                     case "4":
                         DisplayMonth();
                         break;
@@ -53,11 +54,17 @@ namespace Calendar_FinalProject
                         break;
                     case "6":
                         DisplayEvents(calendar.GetEvents());
-                        changeEventName(calendar.GetEvents());
+                        Console.Write($"Enter name of the event you would like to change: ");
+                        name = Console.ReadLine();
+                        Console.Write($"Enter a new description for this event: ");
+                        var newname = Console.ReadLine();
+                        changeEventName(calendar.GetEvents(), name, newname);
                         break;
                     case "7":
                         DisplayEvents(calendar.GetEvents());
-                        changeEventTime(calendar.GetEvents());
+                        Console.Write($"Enter name of the event you would like to change the time and date for: ");
+                        name = Console.ReadLine();
+                        changeEventTime(calendar.GetEvents(), name);
                         break;
                     case "8":
                         DisplayEvents(calendar.GetEvents());
@@ -74,19 +81,33 @@ namespace Calendar_FinalProject
             }
         }
 
-        // Not sure if we need this function
-        /*void DisplayEventsInRange()
+        public static void DisplayEventsInRange()
         {
-            Console.WriteLine($"Please enter a start date:");
-            Console.WriteLine($"Please enter an end date:");
+            // Get's user input and check's user validity
+            DateTime startTime = setTime("start");
+            DateTime endTime = setTime("end");
 
-            var start = DateTime.Now.AddDays(-1); // fix me, test value, need user input
-            var end = DateTime.Now; // fix me, test value, need user input
+            var valid = false;
 
-            var ev = calendar.GetEventsInDateRange(start, end);
+            while (!valid)
+            {
+                if (startTime > endTime)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Invalid end time. Please enter an end time on or after the start time.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    endTime = setTime("end");
+                }
+                else
+                {
+                    valid = true;
+                }
+            }
+
+            var ev = calendar.GetEventsInDateRange(startTime, endTime);
 
             DisplayEvents(ev);
-        }*/
+        }
 
         public static void AddEvent()
         {
@@ -132,7 +153,6 @@ namespace Calendar_FinalProject
             }
             Console.ForegroundColor = ConsoleColor.White;
         }
-
 
         public static void DeleteEvents()
         {
@@ -266,18 +286,15 @@ namespace Calendar_FinalProject
         }
 
         // Function to change the event name
-        public static void changeEventName(List<CalendarEvent> events)
+        public static void changeEventName(List<CalendarEvent> events, string name, string newname)
         {
             var updated = false;
-            Console.Write($"Enter name of the event you would like to change: ");
-            var name = Console.ReadLine();
 
             foreach (var ev in events)
             {
                 if (ev.Description == name)
                 {
-                    Console.Write($"Event description found! Enter a new description for this event: ");
-                    var newname = Console.ReadLine();
+                    Console.Write($"Event description found!");
                     ev.Description = newname;
                     Console.WriteLine($"Description updated successfully!");
                     updated = true;
@@ -291,13 +308,10 @@ namespace Calendar_FinalProject
         }
 
         // Function to change the event time
-        public static void changeEventTime(List<CalendarEvent> events)
+        public static void changeEventTime(List<CalendarEvent> events, string name)
         {
-            // Var too keep track if the program successfully updated the time
+            // Var to keep track if the program successfully updated the time
             var updated = false;
-
-            Console.Write($"Enter name of the event you would like to change the time and date for: ");
-            var name = Console.ReadLine();
 
             foreach (var ev in events)
             {
@@ -386,7 +400,6 @@ namespace Calendar_FinalProject
 
                 dateReturn = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
             }
-
             return dateReturn;
         }
 

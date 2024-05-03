@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace Calendar_FinalProject.Tests
 {
@@ -125,6 +126,53 @@ namespace Calendar_FinalProject.Tests
         public void UserInputTest(string date, string perform, bool expected)
         {
             Assert.AreEqual(expected, Program.userDateValid(date, perform));
+        }
+
+        [DataTestMethod()]
+        [DataRow("CS Class")]
+        [DataRow("Soccer")]
+        [DataRow("Dr appointment")]
+        [DataRow("Club Meeting")]
+        [DataRow("Hair cut")]
+        [DataRow("Bio Class")]
+        public void ChangeEventNameTest(string testname)
+        {
+            var now = DateTime.Now;
+            var c = new UserCalendar("Test");
+            c.AddEvent("Soccer", now.AddDays(-20), now.AddDays(-10));
+            c.AddEvent("Dr appointment", now.AddDays(-10), now.AddDays(-9));
+            c.AddEvent("CS Class", now.AddDays(-12), now.AddDays(-11));
+            c.AddEvent("Hair cut", now.AddDays(-2), now.AddDays(-1));
+            c.AddEvent("Club Meeting", now.AddDays(-15), now.AddDays(-9));
+            c.AddEvent("CS Class", now.AddDays(-20), now.AddDays(-11));
+            c.AddEvent("Club Meeting", now.AddDays(15), now.AddDays(17));
+            c.AddEvent("Club Meeting", now.AddDays(13), now.AddDays(20));
+
+            var countBefore = 0;
+            foreach (var ev in c.GetEvents())
+            {
+                if (ev.Description == testname)
+                {
+                    countBefore++;
+                }
+            }
+
+            Program.changeEventName(c.GetEvents(), testname, "Bio Class");
+
+            var countAfter = 0;
+            if (countBefore > 0)
+            {
+                foreach (var ev in c.GetEvents())
+                {
+                    if (ev.Description == testname)
+                    {
+                        countAfter++;
+                    }
+                }
+                countBefore -= 1;
+            }
+
+            Assert.AreEqual(countAfter, countBefore);
         }
     }
 }
