@@ -189,6 +189,7 @@
                             Console.Write(' ');
                         }
                     }
+                    
                 }
                 else
                 {

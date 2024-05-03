@@ -112,5 +112,19 @@ namespace Calendar_FinalProject.Tests
                 Assert.IsTrue(sw.ToString().Contains("Hello!"));
             }
         }
+
+        // Tests the different types of user input based on if they're entering a valid or 
+        // invalid date based on performance requirements
+        [DataTestMethod]
+        [DataRow("1/24/23", "check start time", false)]
+        [DataRow("01/24/2023 15:00", "check start time", true)]
+        [DataRow("9/20 13:00", "check end time", false)]
+        [DataRow("08/20/2024 13:00", "check end time", true)]
+        [DataRow("3/3/24", "week", false)]
+        [DataRow("03/03/2024", "week", true)]
+        public void UserInputTest(string date, string perform, bool expected)
+        {
+            Assert.AreEqual(expected, Program.userDateValid(date, perform));
+        }
     }
 }
