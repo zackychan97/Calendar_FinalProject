@@ -21,9 +21,8 @@ jobs:
       with:
         dotnet-version: 5.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./Calendar_FinalProject/Calendar_FinalProject.sln
     - name: Build
-      working-directory: ./Calendar_FinalProject
-      run: dotnet build --no-restore
+      run: dotnet build ./Calendar_FinalProject/Calendar_FinalProject.sln --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ./Calendar_FinalProject/Calendar_FinalProject.sln --no-build --verbosity normal
