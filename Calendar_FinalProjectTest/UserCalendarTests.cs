@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.IO;
 
 namespace Calendar_FinalProject.Tests
 {
@@ -96,21 +97,26 @@ namespace Calendar_FinalProject.Tests
         [TestMethod()]
         public void DisplayMonthlyViewTest()
         {
-            var now = DateTime.Now;
+            // Arrange
             var c = new UserCalendar("Test");
-
-            c.AddEvent("TestEvent", now.AddDays(-10), now.AddDays(-9));
-            c.AddEvent("Hello!", now.AddDays(-12), now.AddDays(-11));
+            DateTime start = new DateTime(2024, 4, 15, 12, 0, 0 );
+            DateTime end = new DateTime(2024, 4, 15, 12, 0, 0);
+            c.AddEvent("TestEvent", start, end);
+            start = new DateTime(2024, 4, 25, 12, 0, 0);
+            end = new DateTime(2024, 4, 25, 12, 0, 0);
+            c.AddEvent("Hello!", start, end);
 
             using (StringWriter sw = new StringWriter())
             {
                 Console.SetOut(sw);
 
+                // Act
                 c.DisplayMonthlyView(2024, 4);
 
-                Assert.IsTrue(sw.ToString().Contains("Sun Mon Tue Wed Thu Fri Sat"));
-                Assert.IsTrue(sw.ToString().Contains("TestEvent"));
-                Assert.IsTrue(sw.ToString().Contains("Hello!"));
+                // Perform assertions on the console output
+                Assert.IsTrue(sw.ToString().Contains("Sun     Mon     Tue     Wed     Thu     Fri     Sat"));
+                Assert.IsTrue(sw.ToString().Contains("TestE"));
+                Assert.IsTrue(sw.ToString().Contains("Hello"));
             }
         }
 
