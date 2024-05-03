@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
+using System.IO;
 
 namespace Calendar_FinalProject.Tests
 {
@@ -95,22 +97,88 @@ namespace Calendar_FinalProject.Tests
         [TestMethod()]
         public void DisplayMonthlyViewTest()
         {
-            var now = DateTime.Now;
+            // Arrange
             var c = new UserCalendar("Test");
-
-            c.AddEvent("TestEvent", now.AddDays(-10), now.AddDays(-9));
-            c.AddEvent("Hello!", now.AddDays(-12), now.AddDays(-11));
+            DateTime start = new DateTime(2024, 4, 15, 12, 0, 0 );
+            DateTime end = new DateTime(2024, 4, 15, 12, 0, 0);
+            c.AddEvent("TestEvent", start, end);
+            start = new DateTime(2024, 4, 25, 12, 0, 0);
+            end = new DateTime(2024, 4, 25, 12, 0, 0);
+            c.AddEvent("Hello!", start, end);
 
             using (StringWriter sw = new StringWriter())
             {
                 Console.SetOut(sw);
 
+                // Act
                 c.DisplayMonthlyView(2024, 4);
 
-                Assert.IsTrue(sw.ToString().Contains("Sun Mon Tue Wed Thu Fri Sat"));
-                Assert.IsTrue(sw.ToString().Contains("TestEvent"));
-                Assert.IsTrue(sw.ToString().Contains("Hello!"));
+                // Perform assertions on the console output
+                Assert.IsTrue(sw.ToString().Contains("Sun     Mon     Tue     Wed     Thu     Fri     Sat"));
+                Assert.IsTrue(sw.ToString().Contains("TestE"));
+                Assert.IsTrue(sw.ToString().Contains("Hello"));
             }
+        }
+
+        // Tests the different types of user input based on if they're entering a valid or 
+        // invalid date based on performance requirements
+        [DataTestMethod]
+        [DataRow("1/24/23", "check start time", false)]
+        [DataRow("01/24/2023 15:00", "check start time", true)]
+        [DataRow("9/20 13:00", "check end time", false)]
+        [DataRow("08/20/2024 13:00", "check end time", true)]
+        [DataRow("3/3/24", "week", false)]
+        [DataRow("03/03/2024", "week", true)]
+        public void UserInputTest(string date, string perform, bool expected)
+        {
+            Assert.AreEqual(expected, Program.userDateValid(date, perform));
+        }
+
+        [DataTestMethod()]
+        [DataRow("CS Class")]
+        [DataRow("Soccer")]
+        [DataRow("Dr appointment")]
+        [DataRow("Club Meeting")]
+        [DataRow("Hair cut")]
+        [DataRow("Bio Class")]
+        public void ChangeEventNameTest(string testname)
+        {
+            var now = DateTime.Now;
+            var c = new UserCalendar("Test");
+            c.AddEvent("Soccer", now.AddDays(-20), now.AddDays(-10));
+            c.AddEvent("Dr appointment", now.AddDays(-10), now.AddDays(-9));
+            c.AddEvent("CS Class", now.AddDays(-12), now.AddDays(-11));
+            c.AddEvent("Hair cut", now.AddDays(-2), now.AddDays(-1));
+            c.AddEvent("Club Meeting", now.AddDays(-15), now.AddDays(-9));
+            c.AddEvent("CS Class", now.AddDays(-20), now.AddDays(-11));
+            c.AddEvent("Club Meeting", now.AddDays(15), now.AddDays(17));
+            c.AddEvent("Club Meeting", now.AddDays(13), now.AddDays(20));
+
+            var countBefore = 0;
+            foreach (var ev in c.GetEvents())
+            {
+                if (ev.Description == testname)
+                {
+                    countBefore++;
+                }
+            }
+
+            Program.changeEventName(c.GetEvents(), testname, "Bio Class");
+
+            var countAfter = 0;
+            if (countBefore > 0)
+            {
+                foreach (var ev in c.GetEvents())
+                {
+                    if (ev.Description == testname)
+                    {
+                        countAfter++;
+                    }
+                }
+                countBefore -= 1;
+            }
+
+            Assert.AreEqual(countAfter, countBefore);
         }
     }
 }

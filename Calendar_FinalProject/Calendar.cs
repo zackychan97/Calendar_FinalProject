@@ -104,9 +104,9 @@
 		/// <returns>List of calendar events</returns>
 		public List<CalendarEvent> GetEventsInDateRange(DateTime start, DateTime end)
 		{
-			// this query will probably need to be fixed, it's a start
-			return _events.Where(q => q.EventStart.Date >= start && q.EventEnd.Date <= end).ToList();
-		}
+            // this query will probably need to be fixed, it's a start
+            return _events.Where(q => q.EventStart < end && q.EventEnd > start).ToList();
+        }
 
 		/// <summary>
 		/// Gets events for a given day
@@ -139,9 +139,6 @@
 
         public void DisplayMonthlyView(int year, int month)
         {
-            int eventCharLen = 0;
-            bool printDay = true;
-
             // Get the first day of the month
             DateTime firstDayOfMonth = new DateTime(year, month, 1);
             // Get the last day of the month
@@ -154,56 +151,46 @@
             Console.WriteLine($"{firstDayOfMonth.ToString("MMMM yyyy")}\n");
 
             // Print the days of the week
-            //Console.WriteLine("Sun Mon Tue Wed Thu Fri Sat");
             Console.WriteLine("Sun     Mon     Tue     Wed     Thu     Fri     Sat");
 
             // Print the days of the month
-            for (int i = 0; i < (int)firstDayOfMonth.DayOfWeek; i++)
+            int currentDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+            for (int i = 0; i < currentDayOfWeek; i++)
             {
-                //Console.Write("    ");
                 Console.Write("        ");
             }
 
             for (int day = 1; day <= lastDayOfMonth.Day; day++)
             {
-                // reset eventCharLen
-                eventCharLen = 0;
-
                 // Check if there are any events for this day
                 List<CalendarEvent> dayEvents = events.Where(e => e.EventStart.Day == day).ToList();
                 if (dayEvents.Count > 0)
                 {
-                    Console.SetCursorPosition(Console.CursorLeft - 3, Console.CursorTop);
-
                     // Print the events
                     foreach (CalendarEvent ev in dayEvents)
                     {
-                        //Console.WriteLine($"  {ev.Description}");
-
                         // Truncate the event description to the first 5 characters
                         string truncatedDescription = ev.Description.Length > 5 ? ev.Description.Substring(0, 5) : ev.Description;
-                        Console.Write($"  {truncatedDescription,5}");
-                        int spacing = 8 - truncatedDescription.Length;
-                        for (int i = 0; (i < spacing); i++)
-                        {
-                            Console.Write(' ');
-                        }
+                        Console.Write($"{truncatedDescription,-8} "); // Left-align with 8 characters width
                     }
                 }
                 else
                 {
-                    Console.Write($"{day,2} ");
-                    Console.Write("     ");
+                    Console.Write($"{day,2}      ");
                 }
 
-
-                // Start a new line for each Sunday
-                if ((day + (int)firstDayOfMonth.DayOfWeek) % 7 == 0)
+                currentDayOfWeek = (currentDayOfWeek + 1) % 7;
+                if (currentDayOfWeek == 0 || day == lastDayOfMonth.Day) // Start a new line for each Sunday or when the month ends
                 {
                     Console.WriteLine();
+                }
+
+                if (currentDayOfWeek == 0 && day != lastDayOfMonth.Day) // Start a new line for each Sunday except when the month ends
+                {
                     Console.WriteLine();
                 }
             }
         }
+
     }
 }
