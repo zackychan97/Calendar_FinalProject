@@ -42,28 +42,15 @@ while (!exit)
 			DisplayMonth();
 			break;
 		case "5":
-			Console.WriteLine($"Enter the week you would like to view in the XX/XX/XXXX format.");
-            var start = Console.ReadLine();
-
-            // Need to add a function to validate - H
-            DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy", CultureInfo.InvariantCulture);
-
-
-            // Creating an end time to display in the weekly view header
-            DateTime endTime = startTime.AddHours(144.99);
-            DisplayWeeklyView(startTime, endTime, calendar.GetEventsInDateRange(startTime, endTime));
+            DisplayWeeklyView();
             break;
         case "6":
             DisplayEvents(calendar.GetEvents());
-            Console.WriteLine($"Enter name of the event you would like to change:");
-            var name = Console.ReadLine();
-            changeEventName(name, calendar.GetEvents());
+            changeEventName(calendar.GetEvents());
             break;
         case "7":
             DisplayEvents(calendar.GetEvents());
-            Console.WriteLine($"Enter name of the event you would like to change the time and date for:");
-            name = Console.ReadLine();
-            changeEventTime(name, calendar.GetEvents());
+            changeEventTime(calendar.GetEvents());
             break;
 		case "x":
 		case "X":
@@ -88,35 +75,31 @@ void DisplayEventsInRange()
 	DisplayEvents(ev);
 }
 
-
 void AddEvent()
 {
     Console.WriteLine();
     Console.WriteLine("Enter the event description: ");
     var desc = Console.ReadLine();
 
+    DateTime startTime = setTime("start");
+
+    DateTime endTime = setTime("end");
+
     var valid = false;
-    var start = "";
-    var end = "";
 
-    do
-    {
-        Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
-        start = Console.ReadLine();
-        valid = userDateValid(start);
-    } while (!valid);
-
-    DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
-
-    valid = false; // Fixed a bug
-    do
-    {
-        Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
-        end = Console.ReadLine();
-        valid = userEndDateValid(start, end);
-    } while (!valid);
-
-    DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+    while(!valid) {
+        if (startTime > endTime)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Invalid end time. Please enter an end time on or after the start time.");
+            Console.ForegroundColor = ConsoleColor.White;
+            endTime = setTime("end");
+        }
+        else
+        {
+            valid = true;
+        }
+    }
 
     var ev = calendar.AddEvent(desc, startTime, endTime);
     Console.WriteLine($"Your event {ev.Description} has been added!");
@@ -143,8 +126,18 @@ void DisplayMonth()
     calendar.DisplayMonthlyView(2024, 4);
 }
 
-void DisplayWeeklyView(DateTime start, DateTime end, List<CalendarEvent> events)
+void DisplayWeeklyView()
 {
+    var valid = false;
+    var startTime = "";
+
+    DateTime start = setTime("week");
+
+    // Creating an end time to display in the weekly view header
+    DateTime end = start.AddHours(144.99);
+
+    List<CalendarEvent> events = calendar.GetEventsInDateRange(start, end);
+
     Console.ForegroundColor = ConsoleColor.Yellow;
     Console.WriteLine();
     Console.WriteLine($"-----------------------------------------------Weekly View----------------------------------------------");
@@ -210,51 +203,48 @@ void DisplayWeeklyView(DateTime start, DateTime end, List<CalendarEvent> events)
 }
 
 // Validates user input and returns bool
-bool userDateValid(string date)
+// Date var is the string the user entered 
+// Start var checks start time
+// End var checks end time
+// Perform var checks which function we're performing on
+bool userDateValid(string date, string perform)
 {
-    // Regular expression pattern for MM/DD/YYYY 00:00 format
-    string pattern = @"^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$";
+    string pattern = "";
 
-    if (Regex.IsMatch(date, pattern))
+    // Validates date input for week input
+    if (perform == "week")
     {
-        return true;
+        pattern = @"^\d{2}/\d{2}/\d{4}$";
+        if (Regex.IsMatch(date, pattern))
+        {
+            return true;
+        }
     }
-    else
+    else if (perform == "check start time" || perform == "check end time") // Validates for checking start and end times
     {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("Invalid input format. Please enter the correct format.");
-        Console.ForegroundColor = ConsoleColor.White;
-        return false;
+        // Uses the XX/XX/XXXX 00:00 format
+        pattern = @"^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$";
+
+        if (Regex.IsMatch(date, pattern))
+        {
+            return true;
+        }
     }
+
+    // Display wrong input
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine("Invalid input format. Please enter the correct format.");
+    Console.ForegroundColor = ConsoleColor.White;
+    return false;
 }
 
-// Validates user end time input
-bool userEndDateValid(string start, string end)
-{
-    if (!userDateValid(end))
-    {
-        return false;
-    }
-
-    // Ensures the end date isn't before the start time
-    DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
-    DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
-    if (startTime > endTime)
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("Invalid end time. Please enter an end time on or after the start time.");
-        Console.ForegroundColor = ConsoleColor.White;
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-void changeEventName(string name, List<CalendarEvent> events)
+// Changes the event name
+void changeEventName(List<CalendarEvent> events)
 {
     var updated = false;
+    Console.WriteLine($"Enter name of the event you would like to change:");
+    var name = Console.ReadLine();
+
     foreach (var ev in events)
     {
         if (ev.Description == name)
@@ -263,52 +253,58 @@ void changeEventName(string name, List<CalendarEvent> events)
             var newname = Console.ReadLine();
             ev.Description = newname;
             Console.WriteLine($"Description updated successfully!");
+            updated = true;
             break;
         }
     }
     if (!updated)
     {
         Console.WriteLine($"User description not found!");
-
     }
 }
 
-void changeEventTime(string name, List<CalendarEvent> events)
+// Function to change the event time
+void changeEventTime(List<CalendarEvent> events)
 {
+    // Var too keep track if the program successfully updated the time
     var updated = false;
+
+    Console.WriteLine($"Enter name of the event you would like to change the time and date for:");
+    var name = Console.ReadLine();
+
     foreach (var ev in events)
     {
-        if (ev.Description == name)
+
+        if (ev.Description == name) // Found the event in calendar
         {
             Console.WriteLine($"Event description found!");
-            var start = "";
+
+            // Get's user input and check's user validity
+            DateTime startTime = setTime("start");
+            DateTime endTime = setTime("end");
+
             var valid = false;
-            var end = "";
 
-            do
+            while (!valid)
             {
-                Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
-                start = Console.ReadLine();
-                valid = userDateValid(start);
-            } while (!valid);
+                if (startTime > endTime)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Invalid end time. Please enter an end time on or after the start time.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    endTime = setTime("end");
+                }
+                else
+                {
+                    valid = true;
+                }
+            }
 
-            DateTime startTime = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
-
-            valid = false;
-            do
-            {
-                Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
-                end = Console.ReadLine();
-                valid = userEndDateValid(start, end);
-            } while (!valid);
-
-            DateTime endTime = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
-
-
-
+            // Update the event's start and end time
             ev.EventStart = startTime;
             ev.EventEnd = endTime;
             Console.WriteLine($"Date and time updated successfully!");
+            updated = true;
             break;
         }
     }
@@ -316,7 +312,52 @@ void changeEventTime(string name, List<CalendarEvent> events)
     if (!updated)
     {
         Console.WriteLine($"User description not found!");
-
     }
+}
+
+// Gets the date from the user depending on what is being asked for
+// Ex: Are we asking for a week, start time, or end time?
+DateTime setTime(string perform){
+
+    DateTime dateReturn = new DateTime();
+    var valid = false;
+    var start = "";
+    var end = "";
+
+    if (perform == "week")
+    {
+        while (!valid)
+        {
+            Console.WriteLine($"Enter the week you would like to view in the XX/XX/XXXX format.");
+            start = Console.ReadLine();
+            valid = userDateValid(start, "week");
+        }
+        
+        dateReturn = DateTime.ParseExact(start, "MM/dd/yyyy", CultureInfo.InvariantCulture);
+
+    } else if (perform == "start")
+    {
+        while (!valid)
+        {
+            Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
+            start = Console.ReadLine();
+            valid = userDateValid(start, "check start time");
+        }
+        
+        dateReturn = DateTime.ParseExact(start, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+    } else if (perform == "end")
+    {
+        while (!valid)
+        {
+            Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
+            end = Console.ReadLine();
+            valid = userDateValid(end, "check end time");
+        }
+        
+        dateReturn = DateTime.ParseExact(end, "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture);
+    }
+
+    return dateReturn;
 }
 
