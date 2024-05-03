@@ -25,7 +25,7 @@ namespace Calendar_FinalProject
                 Console.WriteLine($"Please enter a selection or 'x' to quit:");
                 Console.WriteLine($"1) Add an event");
                 Console.WriteLine($"2) Display all events");
-                Console.WriteLine($"3) Display events within a range"); // Do we need this in the program? -H
+                Console.WriteLine($"3) Display events within a range");
                 Console.WriteLine($"4) Display calendar with a year and month (numeric)");
                 Console.WriteLine($"5) Display calendar in a weekly view");
                 Console.WriteLine($"6) Change the descirption of an event");
@@ -173,8 +173,25 @@ namespace Calendar_FinalProject
         public static void DisplayMonth()
         {
             Console.WriteLine();
-            //Console.WriteLine("Enter the year of the Calendar: ");
-            calendar.DisplayMonthlyView(2024, 4);
+            var year = "";
+            var date = "";
+            var month = "";
+
+            var valid = false;
+            while (!valid)
+            {
+                Console.Write("Enter the year of the Calendar as XXXX: ");
+                year = Console.ReadLine();
+                Console.Write("Enter the month of the Calendar as XX: ");
+                month = Console.ReadLine();
+                date = month + "/01/" + year; 
+                if (userDateValid(date.ToString(), "week"))
+                {
+                    valid = true;
+                }
+            }
+            
+            calendar.DisplayMonthlyView(Int32.Parse(year), Int32.Parse(month));
         }
 
         public static void DisplayWeeklyView()
