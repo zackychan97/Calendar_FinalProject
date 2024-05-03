@@ -105,7 +105,7 @@
 		public List<CalendarEvent> GetEventsInDateRange(DateTime start, DateTime end)
 		{
             // this query will probably need to be fixed, it's a start
-            return _events.Where(q => q.EventStart < end && q.EventEnd > start).ToList();
+            return _events.Where(q => q.EventStart <= end && q.EventEnd >= start).ToList();
         }
 
 		/// <summary>

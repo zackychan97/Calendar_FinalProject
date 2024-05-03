@@ -202,7 +202,7 @@ namespace Calendar_FinalProject
             DateTime start = setTime("week");
 
             // Creating an end time to display in the weekly view header
-            DateTime end = start.AddHours(144.99);
+            DateTime end = start.AddMinutes(10079); // (16*24 + 23)*60 + 59
 
             List<CalendarEvent> events = calendar.GetEventsInDateRange(start, end);
 
@@ -262,7 +262,6 @@ namespace Calendar_FinalProject
                     else
                     {
                         // Last element so output spaces and add newline
-                        // I could make this a little more compact - H
                         Console.Write($"{string.Empty,14}\n");
                     }
                 }
