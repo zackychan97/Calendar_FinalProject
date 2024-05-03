@@ -19,11 +19,12 @@ while (!exit)
 	Console.WriteLine($"Please enter a selection or 'x' to quit:");
 	Console.WriteLine($"1) Add an event");
 	Console.WriteLine($"2) Display all events");
-	Console.WriteLine($"3) Display events within a range");
+	Console.WriteLine($"3) Display events within a range"); // Do we need this in the program? -H
     Console.WriteLine($"4) Display calendar with a year and month (numeric)");
-	Console.WriteLine($"5) Display in a weekly view");
+	Console.WriteLine($"5) Display calendar in a weekly view");
     Console.WriteLine($"6) Change the descirption of an event");
     Console.WriteLine($"7) Change the date and time of an event");
+    Console.WriteLine($"8) Delete an event");
 
     var entry = Console.ReadLine();
 
@@ -35,9 +36,9 @@ while (!exit)
 		case "2":
 			DisplayEvents(calendar.GetEvents());
 			break;
-		case "3":
+/*		case "3":
 			DisplayEventsInRange();
-			break;
+			break;*/
 		case "4":
 			DisplayMonth();
 			break;
@@ -52,6 +53,10 @@ while (!exit)
             DisplayEvents(calendar.GetEvents());
             changeEventTime(calendar.GetEvents());
             break;
+        case "8":
+            DisplayEvents(calendar.GetEvents());
+            DeleteEvents();
+            break;
 		case "x":
 		case "X":
 			exit = true; 
@@ -62,7 +67,8 @@ while (!exit)
 	}
 }
 
-void DisplayEventsInRange()
+// Not sure if we need this function
+/*void DisplayEventsInRange()
 {
     Console.WriteLine($"Please enter a start date:");
     Console.WriteLine($"Please enter an end date:");
@@ -73,7 +79,7 @@ void DisplayEventsInRange()
 	var ev = calendar.GetEventsInDateRange(start, end);
 
 	DisplayEvents(ev);
-}
+}*/
 
 void AddEvent()
 {
@@ -117,6 +123,23 @@ void DisplayEvents(List<CalendarEvent> events)
         Console.WriteLine($"Description: {ev.Description}\nStart: {ev.EventStart}\nEnd: {ev.EventEnd}\n");
     }
     Console.ForegroundColor = ConsoleColor.White;
+}
+
+
+void DeleteEvents()
+{
+    List<CalendarEvent> events = calendar.GetEvents();
+    Console.Write($"Enter name of the event you would like to delete: ");
+    var name = Console.ReadLine();
+
+    foreach (var ev in events)
+    {
+        if (ev.Description == name)
+        {
+            bool deleted = calendar.DeleteEvent(ev.Description, ev.EventStart, ev.EventEnd);
+            break;
+        }
+    }
 }
 
 void DisplayMonth()
@@ -242,14 +265,14 @@ bool userDateValid(string date, string perform)
 void changeEventName(List<CalendarEvent> events)
 {
     var updated = false;
-    Console.WriteLine($"Enter name of the event you would like to change:");
+    Console.Write($"Enter name of the event you would like to change: ");
     var name = Console.ReadLine();
 
     foreach (var ev in events)
     {
         if (ev.Description == name)
         {
-            Console.WriteLine($"Event description found! Enter a new description for this event.");
+            Console.Write($"Event description found! Enter a new description for this event: ");
             var newname = Console.ReadLine();
             ev.Description = newname;
             Console.WriteLine($"Description updated successfully!");
@@ -269,7 +292,7 @@ void changeEventTime(List<CalendarEvent> events)
     // Var too keep track if the program successfully updated the time
     var updated = false;
 
-    Console.WriteLine($"Enter name of the event you would like to change the time and date for:");
+    Console.Write($"Enter name of the event you would like to change the time and date for: ");
     var name = Console.ReadLine();
 
     foreach (var ev in events)
@@ -328,7 +351,7 @@ DateTime setTime(string perform){
     {
         while (!valid)
         {
-            Console.WriteLine($"Enter the week you would like to view in the XX/XX/XXXX format.");
+            Console.Write($"Enter the week you would like to view in the XX/XX/XXXX format: ");
             start = Console.ReadLine();
             valid = userDateValid(start, "week");
         }
@@ -339,7 +362,7 @@ DateTime setTime(string perform){
     {
         while (!valid)
         {
-            Console.WriteLine($"Enter the day and start time in the format of MM/DD/YYYY 00:00");
+            Console.Write($"Enter the day and start time in the MM/DD/YYYY 00:00 format: ");
             start = Console.ReadLine();
             valid = userDateValid(start, "check start time");
         }
@@ -350,7 +373,7 @@ DateTime setTime(string perform){
     {
         while (!valid)
         {
-            Console.WriteLine($"Enter the day and end time in the format of MM/DD/YYYY 00:00");
+            Console.Write($"Enter the day and end time in the MM/DD/YYYY 00:00 format: ");
             end = Console.ReadLine();
             valid = userDateValid(end, "check end time");
         }
